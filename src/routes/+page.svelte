@@ -13,31 +13,38 @@
         "incorrect_answers": ["", "", ""]
     }
     let category = ""
-    let difficulty =""
-    let question = currentQuestion.question;
-    let answers = currentQuestion.incorrect_answers
+    let difficulty = ""
+    let answersObjects = []
+    $: answersObjects = currentQuestion.incorrect_answers.map(answer => {
+        return {
+            answer, 
+            right: false
+        }
+    })
+    $: answersObjects = [...answersObjects, {answer: currentQuestion.correct_answer, right: true}]
+    $: console.log(answersObjects)
     let correct = 0
     let incorrect = 0
-    async function getAnswers() {
-        let correct = Math.floor(Math.random() * 4)
-        console.log(correct)
-        answers.splice(correct, 0, currentQuestion.correct_answer)
-    }
 
     async function getQuestions(){
-        fetch(`https://opentdb.com/api.php?amount=10&category=27&difficulty=easy`)
+        fetch(`https://opentdb.com/api.php?amount=1&category=${category}&difficulty=${difficulty}&type=multiple`)
             .then(res => res.json())
             .then(data => {
                 let result = data.results
                 console.log(result)
+                currentQuestion = result[0]
+                console.log(currentQuestion)
+                getAnswers()
+
             })
     }
 
-    getAnswers()
-
     function checkAnswer(answer) {
-        console.log(answer)
-        // console.log(currentQuestion.correct_answer)
+        if(answer.right == true) {
+            correct++
+        } else {
+            incorrect++
+        }
     }
 </script>
 <body>
@@ -77,13 +84,13 @@
     <option value="medium">Medium</option>
     <option value="hard">Hard</option>
 </select>
-<button on:click={getQuestions}>Generate Questions</button>
+<button on:click={getQuestions}>Generate Question</button>
 </form>
-<h2>{question}</h2>
+<h2>{currentQuestion.question}</h2>
 <form>
     <ul>
-{#each answers as answer}
-        <li>{answer}</li>
+{#each answersObjects as answer}
+        <li on:click={checkAnswer(answer)} on:keypress={checkAnswer(answer)}>{answer.answer}</li>
 {/each}
     </ul>
 </form>
