@@ -1,9 +1,4 @@
 <script>
-    import { element } from "svelte/internal";
-
-
-    // let questionList = []
-    // let questionIndex = 0
     let currentQuestion = {
         "category": "",
         "type": "multiple",
